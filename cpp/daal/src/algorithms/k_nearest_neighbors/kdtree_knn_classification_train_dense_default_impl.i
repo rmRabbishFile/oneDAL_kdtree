@@ -271,8 +271,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
                 start_median = std::chrono::high_resolution_clock::now();
                 const algorithmFpType approximatedMedian = computeApproximatedMedianInParallel(bn.start, bn.end, d, bboxCur[d].upper, x, indexes,
-                dur_parallel_median = dur_parallel_median + std::chrono::high_resolution_clock::now() - start_median
                                                                                                engine, subSamples, subSampleCount, status);
+                dur_parallel_median = dur_parallel_median + std::chrono::high_resolution_clock::now() - start_median;
                 services::Status stat;
 
                 start_index_adjust = std::chrono::high_resolution_clock::now();
