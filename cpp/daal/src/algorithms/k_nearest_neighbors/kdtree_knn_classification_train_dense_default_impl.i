@@ -39,6 +39,12 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/engines/engine_batch_impl.h"
 
+# define __Measure_TIME
+#if defined(__Measure_TIME)
+    #include <chrono>
+    #include <iostream>
+#endif
+
 #if defined(__INTEL_COMPILER_BUILD_DATE)
     #include <immintrin.h>
 #endif
@@ -160,9 +166,26 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
+    auto start = std::chrono::high_resolution_clock::now();
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "buildFirstPartOfKDTree" << std::endl;
+    std::cout << duration.count() << std::endl;
+
+    start = std::chrono::high_resolution_clock::now();
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "buildSecondPartOfKDTree" << std::endl;
+    std::cout << duration.count() << std::endl;
+
+    start = std::chrono::high_resolution_clock::now();
     DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "reaaragePoints" << std::endl;
+    std::cout << duration.count() << std::endl;
     if (y)
     {
         DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
@@ -602,7 +625,15 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
     return approximatedMedian;
 }
-
+/*
+@param: samples: random sample
+@param: sampleCount
+@param: subSamples: step sample on *samples*
+@param: subSampleCount
+@param: subSampleCount16
+@param: value : query points
+@return:
+*/
 template <typename algorithmFpType, CpuType cpu>
 size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::computeBucketID(algorithmFpType * samples, size_t sampleCount,
                                                                                                         algorithmFpType * subSamples,

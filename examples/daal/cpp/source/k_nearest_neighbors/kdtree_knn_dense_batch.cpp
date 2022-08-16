@@ -28,6 +28,8 @@
 #include "daal.h"
 #include "service.h"
 #include <cstdio>
+#include <chrono>
+#include <iostream>
 
 using namespace std;
 using namespace daal;
@@ -38,8 +40,8 @@ using namespace daal::data_management;
 string trainDatasetFileName = "../data/batch/k_nearest_neighbors_train.csv";
 string testDatasetFileName  = "../data/batch/k_nearest_neighbors_test.csv";
 
-size_t nFeatures = 5;
-size_t nClasses  = 5;
+size_t nFeatures = 16;
+size_t nClasses  = 10;
 
 kdtree_knn_classification::training::ResultPtr trainingResult;
 kdtree_knn_classification::prediction::ResultPtr predictionResult;
@@ -72,6 +74,7 @@ void trainModel()
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
+    auto start = std::chrono::high_resolution_clock::now();
 
     /* Create an algorithm object to train the KD-tree based kNN model */
     kdtree_knn_classification::training::Batch<> algorithm;
@@ -83,9 +86,18 @@ void trainModel()
 
     /* Train the KD-tree based kNN model */
     algorithm.compute();
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "compute()" << std::endl;
+    std::cout << duration.count() << std::endl;
 
+    start = std::chrono::high_resolution_clock::now();
     /* Retrieve the results of the training algorithm  */
     trainingResult = algorithm.getResult();
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "getResult()" << std::endl;
+    std::cout << duration.count() << std::endl;
 }
 
 void testModel()
