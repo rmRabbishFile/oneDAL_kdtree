@@ -246,22 +246,39 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const size_t subSampleCount  = xRowCount / __KDTREE_SEARCH_SKIP + 1;
     algorithmFpType * subSamples = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(subSampleCount * sizeof(algorithmFpType)));
     DAAL_CHECK_MALLOC(subSamples)
-
+    auto start_loop = std::chrono::high_resolution_clock::now();
+    auto start_median = std::chrono::high_resolution_clock::now();
+    auto start_selectdimension = std::chrono::high_resolution_clock::now();
+    auto start_index_adjust = std::chrono::high_resolution_clock::now();
+    auto dur_select_dimension = start_loop - start_loop;
+    auto dur_parallel_median = start_loop - start_loop;
+    auto dur_parallel_index = start_loop - start_loop;
     while (maxNodeCountForCurrentDepth < firstPartLeafNodeCount)
     {
         for (size_t i = 0; i < maxNodeCountForCurrentDepth; ++i)
         {
+            start_loop = std::chrono::high_resolution_clock::now();
             bn                   = q.pop();
             KDTreeNode & curNode = *(static_cast<KDTreeNode *>(r.impl()->getKDTreeTable()->getArray()) + bn.nodePos);
             bboxCur              = &bboxQ[bn.queueOrStackPos * xColumnCount];
+            start_loop = std::chrono::high_resolution_clock::now();
             if (bn.end - bn.start > __KDTREE_LEAF_BUCKET_SIZE)
             {
+                start_selectdimension = std::chrono::high_resolution_clock::now();
                 const size_t d = selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
                                                               __KDTREE_DIMENSION_SELECTION_SIZE, x, indexes, &engine);
+                dur_select_dimension = dur_select_dimension + std::chrono::high_resolution_clock::now() - start_selectdimension;
+
+                start_median = std::chrono::high_resolution_clock::now();
                 const algorithmFpType approximatedMedian = computeApproximatedMedianInParallel(bn.start, bn.end, d, bboxCur[d].upper, x, indexes,
+                dur_parallel_median = dur_parallel_median + std::chrono::high_resolution_clock::now() - start_median
                                                                                                engine, subSamples, subSampleCount, status);
                 services::Status stat;
+
+                start_index_adjust = std::chrono::high_resolution_clock::now();
                 const size_t idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, stat);
+                dur_parallel_index = dur_parallel_index + std::chrono::high_resolution_clock::now() - start_index_adjust;
+
                 DAAL_CHECK_STATUS_VAR(stat)
                 if (idx == bn.start || idx == bn.end)
                 {
