@@ -163,7 +163,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     status |= r->impl()->resetIndices(xRowCount);
     DAAL_CHECK_STATUS_VAR(status);
     size_t * const indexes = static_cast<data_management::HomogenNumericTable<size_t> *>(r->impl()->getIndices().get())->getArray();
-
+ 
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
     auto start = std::chrono::high_resolution_clock::now();
@@ -728,6 +728,22 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 }
 
 template <CpuType cpu, typename ForwardIterator1, typename ForwardIterator2>
+static ForwardIterator2 copyRanges(ForwardIterator1 first1, ForwardIterator1 last1, ForwardIterator2 first2)
+{
+    size_t cnt = 0;
+    while (first1 != last1)
+    {
+        const auto tmp = *first1;
+        *first2        = tmp;
+
+        ++first1;
+        ++first2;
+        cnt ++;
+    }
+    return first2;
+}
+
+template <CpuType cpu, typename ForwardIterator1, typename ForwardIterator2>
 static ForwardIterator2 swapRanges(ForwardIterator1 first1, ForwardIterator1 last1, ForwardIterator2 first2)
 {
     while (first1 != last1)
@@ -752,6 +768,8 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, 0, xRowCount, readOnly, columnBD);
     const algorithmFpType * const dx = columnBD.getBlockPtr();
+    size_t * const reduced_indexes = data_management::HomogenNumericTable<size_t>::create(1, xRowCount, data_management::NumericTable::doAllocate, &status)->getArray();
+
 
     const auto rowsPerBlock  = 128;
     const auto blockCount    = (end - start + rowsPerBlock - 1) / rowsPerBlock;
@@ -814,6 +832,25 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     // Swaps the segments.
     size_t leftSegment  = 0;
     size_t rightSegment = blockCount - 1;
+
+
+    size_t segmentcount = 0;
+    while (segmentcount < blockCount)
+    {
+        std::cout << segmentcount;
+        // copy segment left
+        copyRanges<cpu>(&indexes[leftSegmentStartPerBlock[idxMultiplier * segmentcount]],
+                        &indexes[rightSegmentStartPerBlock[idxMultiplier * segmentcount]],
+                        &reduced_indexes[leftSegmentStartPerBlock[idxMultiplier * segmentcount]]);
+
+        // copy segment right
+        copyRanges<cpu>(&indexes[rightSegmentStartPerBlock[idxMultiplier * segmentcount]],
+                &indexes[leftSegmentStartPerBlock[idxMultiplier * (segmentcount + 1)]],
+                &reduced_indexes[rightSegmentStartPerBlock[idxMultiplier * segmentcount]]);
+        ++segmentcount;
+    }
+
+
     while (leftSegment < rightSegment)
     {
         // Find the thinner segment.
@@ -851,6 +888,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     daal_free(leftSegmentStartPerBlock);
     daal_free(rightSegmentStartPerBlock);
+    daal_free(reduced_indexes);
     leftSegmentStartPerBlock  = nullptr;
     rightSegmentStartPerBlock = nullptr;
 
