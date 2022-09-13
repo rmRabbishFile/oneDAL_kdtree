@@ -1,0 +1,387 @@
+make all -f /home/xz/workspace/optimization/oneDAL/makefile --print-data-base --no-builtin-variables --no-builtin-rules --question
+/home/xz/workspace/optimization/oneDAL/makefile:80: *** PLAT for icc must be defined to one of lnx32e win32e mac32e.  Stop.
+
+# GNU Make 4.3
+# Built for x86_64-pc-linux-gnu
+# Copyright (C) 1988-2020 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Wed Sep 14 00:44:11 2022
+
+# Variables
+
+# environment
+JAVA_HOME = /home/xz/Deps/jdk1.8.0_331
+# environment
+LC_ALL = C
+# environment
+LC_NAME = zh_CN.UTF-8
+# environment
+LC_NUMERIC = zh_CN.UTF-8
+# environment
+VSCODE_CWD = /home/xz
+# environment
+LC_ADDRESS = zh_CN.UTF-8
+# default
+MAKE_COMMAND := make
+# environment
+VSCODE_HANDLES_SIGPIPE = true
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 26)
+CORE.SERV.COMPILER.dpcpp = generic
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 57)
+COMPILER_is_icc := yes
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 60)
+PLAT_is_ := yes
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# default
+.VARIABLES := 
+# environment
+PWD = /home/xz/workspace/optimization/oneDAL_debug
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 45)
+mc_OPT.dpcpp = -march=core2
+# environment
+XDG_DATA_DIRS = /usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop
+# environment
+http_proxy = http://child-prc.intel.com:913
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# automatic
+%F = $(notdir $%)
+# environment
+CONDA_PROMPT_MODIFIER = (base) 
+# makefile (from 'dev/make/cmplr.icc.mk', line 25)
+CORE.SERV.COMPILER.icc = generic
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 22)
+PLATs.dpcpp = lnx32e win32e
+# environment
+LANG = C
+# default
+.LOADED := 
+# default
+.INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 49)
+skx_OPT.dpcpp = -march=skx
+# makefile
+MAKEFLAGS = pqrR
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 24)
+CMPLRDIRSUFF.dpcpp = _dpcpp
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 48)
+avx2_OPT.dpcpp = -march=haswell
+# makefile (from 'dev/make/cmplr.icc.mk', line 29)
+-Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
+# makefile
+CURDIR := /home/xz/workspace/optimization/oneDAL_debug
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 29)
+-DEBC.dpcpp = -g
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# environment
+LESSOPEN = | /usr/bin/lesspipe %s
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+MFLAGS = -pqrR
+# default
+.SHELLFLAGS := -c
+# makefile (from 'dev/make/cmplr.icc.mk', line 44)
+link.dynamic.mac.icc = icc
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# makefile (from 'dev/make/cmplr.icc.mk', line 51)
+daaldep.lnx32e.rt.icc = -static-intel
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 1)
+MAKEFILE_LIST := /home/xz/workspace/optimization/oneDAL/makefile dev/make/cmplr.icc.mk dev/make/cmplr.dpcpp.mk
+# environment
+CONDA_SHLVL = 1
+# automatic
+@F = $(notdir $@)
+# environment
+XDG_SESSION_TYPE = tty
+# makefile (from 'dev/make/cmplr.icc.mk', line 43)
+link.dynamic.lnx.icc = icc -no-cilk
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# environment
+HTTPS_PROXY = http://child-prc.intel.com:913
+# environment
+CONDA_PYTHON_EXE = /home/xz/anaconda3/bin/python
+# makefile (from 'dev/make/cmplr.icc.mk', line 28)
+-Zl.icc = $(if $(OS_is_win),-Zl,) -mGLOB_freestanding=TRUE -mCG_no_libirc=TRUE
+# automatic
+*F = $(notdir $*)
+# makefile (from 'dev/make/cmplr.icc.mk', line 40)
+COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.14 -Werror -Wreturn-type -qopenmp-simd
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 53)
+_OS := 
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 47)
+avx_OPT.dpcpp = -march=sandybridge
+# makefile (from 'dev/make/cmplr.icc.mk', line 26)
+-DEBC.icc = $(if $(OS_is_win),-debug:all -Z7,-g)
+# environment
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 28)
+MSVC_RUNTIME_VERSIONs = release debug
+# makefile (from 'dev/make/cmplr.icc.mk', line 59)
+avx_OPT.icc = $(-Q)xAVX
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 48)
+attr.lnx32e = lnx intel64 lin
+# environment
+HTTP_PROXY = http://child-prc.intel.com:913
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
+# default
+MAKE_HOST := x86_64-pc-linux-gnu
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 18)
+COMPILER = icc
+# environment
+CONDA_PREFIX = /home/xz/anaconda3
+# makefile
+SHELL = /bin/sh
+# environment
+CLASSPATH = .:/home/xz/Deps/jdk1.8.0_331/lib/dt.jar:/home/xz/Deps/jdk1.8.0_331/lib/tools.jar:/home/xz/Deps/jdk1.8.0_331/jre/lib
+# default
+MAKECMDGOALS := all
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 26)
+USECPUS := sse2 ssse3 sse42 avx2 avx512_mic avx512 avx
+# environment
+SHLVL = 0
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 46)
+mc3_OPT.dpcpp = -march=nehalem
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+PATH = /home/xz/.vscode-server/bin/e4503b30fc78200f846c62cf8091b76ff5547662/bin/remote-cli:/home/xz/Deps/jdk1.8.0_331/bin:/home/xz/Deps/jdk1.8.0_331/jre/bin:/home/xz/Deps/jdk1.8.0_331/db/bin:/home/xz/anaconda3/bin:/home/xz/anaconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/xz/.fzf/bin
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 39)
+pedantic.opts.lnx.dpcpp = -pedantic -Wall -Wextra -Wno-unused-parameter
+# default
+MAKEFILES := 
+# environment
+MOTD_SHOWN = pam
+# environment
+LC_MONETARY = zh_CN.UTF-8
+# automatic
+^F = $(notdir $^)
+# environment
+LC_TIME = zh_CN.UTF-8
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 58)
+OS_is_ := yes
+# environment
+SSH_CLIENT = 10.238.4.179 55244 22
+# makefile (from 'dev/make/cmplr.icc.mk', line 34)
+COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd
+# makefile (from 'dev/make/cmplr.icc.mk', line 60)
+avx2_OPT.icc = $(-Q)xCORE-AVX2
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 23)
+CPUs.files := nrh mrm neh snb hsw skx
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 24)
+USERREQCPU := 
+# makefile (from 'dev/make/cmplr.icc.mk', line 23)
+CMPLRDIRSUFF.icc = 
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 59)
+IA_is_ := yes
+# environment
+LC_TELEPHONE = zh_CN.UTF-8
+# environment
+LESSCLOSE = /usr/bin/lesspipe %s %s
+# automatic
+?F = $(notdir $?)
+# makefile (from 'dev/make/cmplr.icc.mk', line 52)
+daaldep.lnx32.rt.icc = -static-intel
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 31)
+COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 50)
+attr.win32e = win intel64 win
+# environment
+LS_COLORS = 
+# automatic
++F = $(notdir $+)
+# makefile (from 'dev/make/cmplr.icc.mk', line 46)
+pedantic.opts.lnx.icc = -pedantic -Wall -Wextra -Wno-unused-parameter
+# environment
+GNUMAKEFLAGS := 
+# environment
+BROWSER = /home/xz/.vscode-server/bin/e4503b30fc78200f846c62cf8091b76ff5547662/bin/helpers/browser.sh
+# environment
+CONDA_DEFAULT_ENV = base
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 32)
+req-features = order-only second-expansion
+# environment
+LOGNAME = xz
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 44)
+p4_OPT.dpcpp = -march=nocona
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 17)
+COMPILERs = icc icx gnu clang vc
+# makefile
+.DEFAULT_GOAL := help
+# environment
+USER = xz
+# default
+MAKE_VERSION := 4.3
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 22)
+CPUs := sse2 ssse3 sse42 avx2 avx512_mic avx512 avx
+# environment
+LC_MEASUREMENT = zh_CN.UTF-8
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 29)
+MSVC_RUNTIME_VERSION = release
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 33)
+COMPILER.win.dpcpp = dpcpp $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
+# environment
+VSCODE_AGENT_FOLDER = /home/xz/.vscode-server
+# environment
+_ = /home/xz/.vscode-server/bin/e4503b30fc78200f846c62cf8091b76ff5547662/node
+# environment
+LC_PAPER = zh_CN.UTF-8
+# environment
+XDG_RUNTIME_DIR = /run/user/1000
+# makefile (from 'dev/make/cmplr.icc.mk', line 58)
+mc3_OPT.icc = $(-Q)xSSE4.2
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 36)
+link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
+# makefile (from 'dev/make/cmplr.icc.mk', line 57)
+mc_OPT.icc = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE3)
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 49)
+attr.mac32e = mac intel64
+# environment
+_CE_M = 
+# environment
+VSCODE_IPC_HOOK_CLI = /run/user/1000/vscode-ipc-18219017-881d-4e4d-9a95-26471387cc98.sock
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 37)
+link.dynamic.win.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -fsycl-device-code-split=per_kernel
+# environment
+XDG_SESSION_CLASS = user
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# makefile (from 'dev/make/cmplr.dpcpp.mk', line 28)
+-Zl.dpcpp = 
+# environment
+HOME = /home/xz
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 54)
+_IA := 
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 55)
+_OSc := 
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# environment
+XDG_SESSION_ID = 1221
+# default
+.RECIPEPREFIX := 
+# automatic
+<F = $(notdir $<)
+# makefile (from 'dev/make/cmplr.icc.mk', line 21)
+PLATs.icc = lnx32e win32e mac32e
+# default
+SUFFIXES := 
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 61)
+ 
+MSVC_RT_is_release := yes
+# makefile (from 'dev/make/cmplr.icc.mk', line 55)
+p4_OPT.icc = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE2)
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
+# makefile (from '/home/xz/workspace/optimization/oneDAL/makefile', line 51)
+attr.fbsd32e = fbsd intel64 fre
+# environment
+https_proxy = http://child-prc.intel.com:913
+# makefile (from 'dev/make/cmplr.icc.mk', line 61)
+skx_OPT.icc = $(-Q)xCORE-AVX512 $(-Qopt)zmm-usage=high
+# environment
+CONDA_EXE = /home/xz/anaconda3/bin/conda
+# environment
+_CE_CONDA = 
+# makefile (from 'dev/make/cmplr.icc.mk', line 33)
+COMPILER.lnx.icc = $(if $(COVFILE),cov01 -1; covc -i )icc -qopenmp-simd -Werror -Wreturn-type $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64))
+# environment
+LC_IDENTIFICATION = zh_CN.UTF-8
+# environment
+SSH_CONNECTION = 10.238.4.179 55244 10.238.201.182 22
+# environment
+JRE_HOME = /home/xz/Deps/jdk1.8.0_331/jre
+# variable set hash-table stats:
+# Load=147/1024=14%, Rehash=0, Collisions=9/207=4%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+
+# No files, no impossibilities in 0 directories.
+
+# Implicit Rules
+
+# No implicit rules.
+
+# Files
+
+# Not a target:
+dev/make/cmplr.icc.mk:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+dev/make/cmplr.dpcpp.mk:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+all:
+#  Command line target.
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+help:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from '/home/xz/workspace/optimization/oneDAL/makefile', line 38):
+	 $(info $(help))
+
+# Not a target:
+/home/xz/workspace/optimization/oneDAL/makefile:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+.PHONY: help
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# files hash-table stats:
+# Load=8/1024=1%, Rehash=0, Collisions=0/13=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 10 / storage = 161 B / avg = 16 B
+# current buf: size = 8162 B / used = 161 B / count = 10 / avg = 16 B
+
+# strcache performance: lookups = 18 / hit rate = 44%
+# hash-table stats:
+# Load=10/8192=0%, Rehash=0, Collisions=0/18=0%
+# Finished Make data base on Wed Sep 14 00:44:11 2022
+
+ 

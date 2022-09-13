@@ -1,0 +1,60 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: icc build active file",
+			"command": "/opt/intel/oneapi/compiler/2022.1.0/linux/bin/intel64/icc",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${file}",
+				"-o",
+				"${fileDirname}/${fileBasenameNoExtension}"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "/opt/intel/oneapi/compiler/2022.1.0/linux/bin/intel64/icc"
+		},
+		{
+			"type": "cppbuild",
+			"label": "C/C++: icc build active file",
+			"command": "/opt/intel/oneapi/compiler/2022.1.0/linux/bin/intel64/icc",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-I/home/xz/workspace/optimization/oneDAL_debug/__release_lnx/daal/latest/examples/daal/cpp/source/utils/",
+				"-I/usr/include",
+                "-I/usr/include/c++/9",
+                "-I/usr/include/x86_64-linux-gnu/c++/9",
+                "-I/usr/include/c++/9/backward",
+                "-I/usr/lib/gcc/x86_64-linux-gnu/9/include",
+                "-I/usr/local/include",
+                "-I/usr/include/x86_64-linux-gnu",
+                "-I/home/xz/workspace/optimization/oneDAL_debug/oneDAL/__release_lnx/daal/latest/include/",
+				"-I/home/xz/workspace/optimization/oneDAL_debug/oneDAL/__release_lnx/daal/latest/include/algorithms/",
+				"-I/home/xz/workspace/optimization/oneDAL_debug/oneDAL/__release_lnx/daal/latest/examples/daal/cpp_sycl/source/utils",
+                "-I/opt/intel/oneapi/compiler/2022.1.0/linux/include",
+                "-I/opt/intel/oneapi/compiler/2022.1.0/linux/include/sycl",
+				"-std=c11",
+				"-std=c++17",
+				"-g",
+				"${workspaceFolder}/examples/daal/*/*/*/*.cpp",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "compiler: /opt/intel/oneapi/compiler/2022.1.0/linux/bin/intel64/icc"
+		}
+	]
+}

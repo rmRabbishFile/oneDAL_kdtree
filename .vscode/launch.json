@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: knn_kdtree_builder",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "/home/xz/workspace/optimization/oneDAL_debug/examples/daal/cpp",
+      "program": "/home/xz/workspace/optimization/oneDAL_debug/examples/daal/cpp/_results/intel_intel64_parallel_so/kdtree_knn_dense_batch.exe",
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "environment": [
+        {
+          "name": "LD_LIBRARY_PATH",
+          "value": "/opt/intel/oneapi/tbb/2021.6.0/env/../lib/intel64/gcc4.8:/home/xz/workspace/optimization/oneDAL_debug/__release_lnx/daal/latest/lib/intel64"
+        }
+      ],
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
