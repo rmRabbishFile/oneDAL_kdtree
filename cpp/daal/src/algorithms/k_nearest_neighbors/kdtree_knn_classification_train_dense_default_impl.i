@@ -147,7 +147,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     auto start_all = std::chrono::high_resolution_clock::now();
     size_t nThreadsInit = services::Environment::getInstance()->getNumberOfThreads();
     Status status;
-    std::cout << "message from compute() cpp: \n using" << std::endl << nThreadsInit << std::endl;
+    std::cout << "message from compute() cpp: \n using" << "\n" << nThreadsInit << "\n";
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
 
@@ -165,32 +165,36 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     status |= r->impl()->resetIndices(xRowCount);
     DAAL_CHECK_STATUS_VAR(status);
     size_t * const indexes = static_cast<data_management::HomogenNumericTable<size_t> *>(r->impl()->getIndices().get())->getArray();
-
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start_all);
+    std::cout << "init_compute" << "\n";
+    std::cout << duration.count() << "\n";
+   
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
     auto start = std::chrono::high_resolution_clock::now();
-    std::cout << "start FirstHalf()" << std::endl;
+    std::cout << "start FirstHalf()" << "\n";
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "buildFirstPartOfKDTree" << std::endl;
-    std::cout << duration.count() << std::endl;
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "buildFirstPartOfKDTree" << "\n";
+    std::cout << duration.count() << "\n";
 
     start = std::chrono::high_resolution_clock::now();
-    std::cout << "start secondHalf()" << std::endl;
+    std::cout << "start secondHalf()" << "\n";
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "buildSecondPartOfKDTree" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "buildSecondPartOfKDTree" << "\n";
+    std::cout << duration.count() << "\n";
 
     start = std::chrono::high_resolution_clock::now();
-    std::cout << "start rearrange()";
-    DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
+    std::cout << "start rearrange()"<< "\n";
+    rearrangePoints(*x, indexes);
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "reaaragePoints" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "reaaragePoints" << "\n";
+    std::cout << duration.count() << "\n";
     if (y)
     {
         DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
@@ -198,10 +202,18 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start_all);
-    std::cout << "compute()" << std::endl;
+    std::cout << "compute()" << "\n";
     std::cout << duration.count() << std::endl;
     daal_free(bboxQ);
     bboxQ = nullptr;
+
+    start = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(start - start);
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << "std_time" << "\n";
+    std::cout << duration.count() << std::endl;
+
     return status;
 }
 
@@ -210,6 +222,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     Queue<BuildNode, cpu> & q, BoundingBox<algorithmFpType> *& bboxQ, const NumericTable & x, kdtree_knn_classification::Model & r, size_t * indexes,
     engines::BatchBase & engine)
 {
+    auto start_firstTree = std::chrono::high_resolution_clock::now();
     Status status;
 
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
@@ -219,7 +232,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const algorithmFpType base = 2.0;
     const size_t queueSize =
         2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD * maxThreads) / Math::sLog(base)));
-    std::cout << "KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD" << "\n" << __KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD << std::endl;
+    std::cout << "KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD" << "\n" << __KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD << "\n";
     const size_t firstPartLeafNodeCount = queueSize / 2;
     q.init(queueSize);
     const size_t xColumnCount = x.getNumberOfColumns();
@@ -256,13 +269,22 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     const size_t subSampleCount  = xRowCount / __KDTREE_SEARCH_SKIP + 1;
     algorithmFpType * subSamples = static_cast<algorithmFpType *>(service_malloc<algorithmFpType, cpu>(subSampleCount * sizeof(algorithmFpType)));
     DAAL_CHECK_MALLOC(subSamples)
+    auto dur_init_first = std::chrono::high_resolution_clock::now() - start_firstTree;
+    auto duration_init = std::chrono::duration_cast<std::chrono::microseconds>(dur_init_first);
+    std::cout << "First tree init" << "\n";
+    std::cout << duration_init.count() << "\n";
+
     auto start_loop = std::chrono::high_resolution_clock::now();
     auto start_median = std::chrono::high_resolution_clock::now();
     auto start_selectdimension = std::chrono::high_resolution_clock::now();
     auto start_index_adjust = std::chrono::high_resolution_clock::now();
+    auto start_wrapup = std::chrono::high_resolution_clock::now();
     auto dur_select_dimension = start_loop - start_loop;
     auto dur_parallel_median = start_loop - start_loop;
     auto dur_parallel_index = start_loop - start_loop;
+    auto dur_warpup = start_wrapup - start_wrapup;
+
+
 
     while (maxNodeCountForCurrentDepth < firstPartLeafNodeCount)
     {
@@ -289,6 +311,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 start_index_adjust = std::chrono::high_resolution_clock::now();
                 const size_t idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, stat);
                 dur_parallel_index = dur_parallel_index + std::chrono::high_resolution_clock::now() - start_index_adjust;
+
+
+                start_wrapup = std::chrono::high_resolution_clock::now();
+
 
                 DAAL_CHECK_STATUS_VAR(stat)
                 if (idx == bn.start || idx == bn.end)
@@ -320,6 +346,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 copyBBox(bboxRight, bboxCur, xColumnCount);
                 bboxRight[d].lower = approximatedMedian;
                 q.push(bnRight);
+                dur_warpup = dur_warpup + std::chrono::high_resolution_clock::now() - start_wrapup;
             }
             else
             { // Should be leaf node.
@@ -338,15 +365,19 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         maxNodeCountForCurrentDepth = static_cast<size_t>(1) << depth;
     }
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_select_dimension);
-    std::cout << "dur_select_dimension" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_select_dimension" << "\n";
+    std::cout << duration.count() << "\n";
 
     duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_parallel_median);
-    std::cout << "dur_parallel_median" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_parallel_median" << "\n";
+    std::cout << duration.count() << "\n";
 
     duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_parallel_index);
-    std::cout << "dur_parallel_index" << std::endl;
+    std::cout << "dur_parallel_index" << "\n";
+    std::cout << duration.count() << "\n";
+
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_warpup);
+    std::cout << "dur_warpup" << "\n";
     std::cout << duration.count() << std::endl;
 
     daal_free(subSamples);
@@ -676,16 +707,16 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     dur_reduce_median = dur_reduce_median + std::chrono::high_resolution_clock::now() - start_reduce_median;
 
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_sample_median);
-    std::cout << "dur_sample_median_" << rowsPerBlock << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_sample_median_" << rowsPerBlock << "\n";
+    std::cout << duration.count() << "\n";
 
     duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_for_median);
-    std::cout << "dur_for_median_" << rowsPerBlock << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_for_median_" << rowsPerBlock << "\n";
+    std::cout << duration.count() << "\n";
 
     duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_reduce_median);
-    std::cout << "dur_reduce_median" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_reduce_median" << "\n";
+    std::cout << duration.count() << "\n";
     return approximatedMedian;
 }
 
@@ -909,16 +940,16 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     
 
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_sample_median);
-    std::cout << "dur_sample_index" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_sample_index" << "\n";
+    std::cout << duration.count() << "\n";
 
     duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_for_median);
-    std::cout << "dur_for_index" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_for_index" << "\n";
+    std::cout << duration.count() << "\n";
 
     duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_reduce_median);
-    std::cout << "dur_reduce_index" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_reduce_index" << "\n";
+    std::cout << duration.count() << "\n";
     daal_free(leftSegmentStartPerBlock);
     daal_free(rightSegmentStartPerBlock);
     leftSegmentStartPerBlock  = nullptr;
@@ -942,13 +973,19 @@ template <typename algorithmFpType, CpuType cpu>
 Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense, cpu>::rearrangePoints(NumericTable & x, const size_t * indexes)
 {
     Status status;
-
+    auto start = std::chrono::high_resolution_clock::now();
     const size_t xRowCount    = x.getNumberOfRows();
     const size_t xColumnCount = x.getNumberOfColumns();
 
     algorithmFpType * buffer = nullptr;
 
     data_management::BlockDescriptor<algorithmFpType> columnReadBD, columnWriteBD;
+
+    auto start_rearrange = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(start_rearrange - start);
+
+    std::cout << "reaaragePoints init" << "\n";
+    std::cout << duration.count() << "\n";
 
     for (size_t i = 0; i < xColumnCount; ++i)
     {
@@ -1018,10 +1055,17 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         x.releaseBlockOfColumnValues(columnReadBD);
         x.releaseBlockOfColumnValues(columnWriteBD);
     }
+    auto start_wrapup = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(start_wrapup - start_rearrange);
 
+    std::cout << "reaaragePoints done" << "\n";
+    std::cout << duration.count() << "\n";
     service_free<algorithmFpType, cpu>(buffer);
     buffer = nullptr;
 
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_wrapup);
+    std::cout << "reaaragePoints end" << "\n";
+    std::cout << duration.count() << "\n";
     return status;
 }
 
@@ -1031,6 +1075,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     engines::BatchBase & engine)
 {
     Status status;
+
+    auto start = std::chrono::high_resolution_clock::now();
 
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
@@ -1078,6 +1124,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     const auto rowsPerBlock = (posQ + maxThreads - 1) / maxThreads;
     const auto blockCount   = (posQ + rowsPerBlock - 1) / rowsPerBlock;
+    std::cout << "blockCount:" << blockCount << std::endl;
 
     const size_t lastNodeIndex  = r.impl()->getLastNodeIndex();
     const size_t maxNodeCount   = kdTreeTable.getNumberOfRows();
@@ -1092,9 +1139,6 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         nodeIndex += segment;
     }
     firstNodeIndex[maxThreads] = maxNodeCount;
-
-    auto start = std::chrono::high_resolution_clock::now();
-    std::cout << "start tread_for()" << std::endl;
 
     daal::tls<Local *> localTLS([=, &threadIndex, &firstNodeIndex, &stackSize, &status]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
@@ -1131,7 +1175,13 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     DAAL_CHECK_STATUS_OK((status.ok()), status);
 
     SafeStatus safeStat;
+    auto start_thread = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(start_thread - start);
 
+    std::cout << "second init done" << "\n";
+    std::cout << duration.count() << "\n";
+
+    std::cout << "start tread_for()" << "\n";
     daal::threader_for(
         blockCount, blockCount, [=, &localTLS, &firstNodeIndex, &kdTreeTable, &x, &r, &rowsPerBlock, &xColumnCount, &safeStat, &engine](int iBlock) {
             int result                     = 0;
@@ -1141,12 +1191,24 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
             safeStat |= engineLocal->leapfrog(iBlock, blockCount);
 
+
+            auto start_ = std::chrono::high_resolution_clock::now();
+            auto start_kernel = std::chrono::high_resolution_clock::now();
+            auto stop_kernel = std::chrono::high_resolution_clock::now();
+            auto duration_main = start_kernel - start_kernel;
+            auto duration_indexes = start_kernel - start_kernel;
+            auto duration_select = start_kernel - start_kernel;
+            auto duration_end = start_kernel - start_kernel;
+
+            std::cout << "start thread()" << std::endl;
+
             Local * const local = localTLS.local();
             if (local)
             {
                 const size_t first = iBlock * rowsPerBlock;
                 const size_t last  = min<cpu>(first + rowsPerBlock, posQ);
 
+                
                 BuildNode bn, bnLeft, bnRight;
                 BBox *bboxCur = nullptr, *bboxLeft = nullptr, *bboxRight = nullptr;
                 KDTreeNode * curNode = nullptr;
@@ -1179,7 +1241,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                         local->bboxesCapacity  = newCapacity;
                         service_scalable_free<BBox, cpu>(oldBboxes);
                     }
-
+                    auto start_tree = std::chrono::high_resolution_clock::now();
+                    
+                    
                     while (local->buildStack.size() > 0)
                     {
                         bn = local->buildStack.pop();
@@ -1215,18 +1279,25 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                     oldQueue = nullptr;
                                 }
                             }
-
+                            stop_kernel = std::chrono::high_resolution_clock::now();
                             const auto d = this->selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
                                                                               __KDTREE_DIMENSION_SELECTION_SIZE, x, indexes, engineLocal.get());
                             lowerD       = bboxCur[d].lower;
                             upperD       = bboxCur[d].upper;
                             services::Status statApproxMedian;
+                            start_kernel = std::chrono::high_resolution_clock::now();
+                            duration_select = duration_select + start_kernel - stop_kernel;
                             const algorithmFpType approximatedMedian = this->computeApproximatedMedianInSerial(
                                 bn.start, bn.end, d, bboxCur[d].upper, local->inSortValues, local->outSortValues,
                                 __KDTREE_INDEX_VALUE_PAIRS_PER_THREAD, x, indexes, engineLocal.get(), statApproxMedian);
+                            
+                            stop_kernel = std::chrono::high_resolution_clock::now();
+                            duration_main = duration_main + stop_kernel - start_kernel;
                             DAAL_CHECK_STATUS_THR(statApproxMedian)
+                            
                             const auto idx = this->adjustIndexesInSerial(bn.start, bn.end, d, approximatedMedian, x, indexes);
-
+                            start_kernel = std::chrono::high_resolution_clock::now();
+                            duration_indexes = duration_indexes + start_kernel - stop_kernel;
                             curNode->cutPoint   = approximatedMedian;
                             curNode->dimension  = d;
                             curNode->leftIndex  = (local->nodeIndex)++;
@@ -1305,20 +1376,49 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             statStackPush     = local->buildStack.push(bnLeft);
                             DAAL_CHECK_STATUS_THR(statStackPush)
                         } // if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
+                        stop_kernel = std::chrono::high_resolution_clock::now();
+                        duration_end = duration_end + stop_kernel - start_kernel;
                     }     // while (local->buildStack.size() > 0)
+
+                    
+                    // auto stop_tree = std::chrono::high_resolution_clock::now();
+                    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop_tree - start_tree);
+                    // std::cout << "one_tree" << "\n";
+                    // std::cout << duration.count() << "\n";
                 }         // for (auto i = first; i < last; ++i)
                 if (result) safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
             } // if (local)
+            
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_main);
+            std::cout << "thread_median" << "\n";
+            std::cout << duration.count() << std::endl;
+
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_indexes);
+            std::cout << "thread_duration_indexes" << "\n";
+            std::cout << duration.count() << std::endl;
+
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_select);
+            std::cout << "thread_duration_select" << "\n";
+            std::cout << duration.count() << std::endl;
+
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_end);
+            std::cout << "thread_duration_end" << "\n";
+            std::cout << duration.count() << std::endl;
+
+            auto stop = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start_);
+            std::cout << "finish_loop" << "\n";
+            std::cout << duration.count() << std::endl;
         });
 
 
     auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "dur_thread_second" << std::endl;
-    std::cout << duration.count() << std::endl;
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start_thread);
+    std::cout << "dur_thread_second" << "\n";
+    std::cout << duration.count() << "\n";
 
     start = std::chrono::high_resolution_clock::now();
-    std::cout << "start tread_for()" << std::endl;
+    std::cout << "start tread_for()" << "\n";
 
     status = safeStat.detach();
     if (status.ok())
@@ -1419,8 +1519,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "dur_reduce_second" << std::endl;
-    std::cout << duration.count() << std::endl;
+    std::cout << "dur_reduce_second" << "\n";
+    std::cout << duration.count() << "\n";
 
     daal_free(firstNodeIndex);
     daal_free(bnQ);
@@ -1442,6 +1542,8 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     data_management::BlockDescriptor<algorithmFpType> columnBD;
     const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, 0, xRowCount, readOnly, columnBD);
     const algorithmFpType * const dx = columnBD.getBlockPtr();
+    
+    
     if (end - start < sortValueCount)
     {
         const size_t elementCount = end - start;
@@ -1476,7 +1578,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
         const_cast<NumericTable &>(x).releaseBlockOfColumnValues(columnBD);
 
+
         return approximatedMedian;
+
+
     } // if (end - start < sortValueCount)
 
     size_t sampleCount = min<cpu>(static_cast<size_t>(static_cast<algorithmFpType>(end - start) * __KDTREE_SAMPLES_PERCENT / 100),
@@ -1582,7 +1687,8 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     data_management::BlockDescriptor<algorithmFpType> columnBD;
     const_cast<NumericTable &>(x).getBlockOfColumnValues(dimension, 0, xRowCount, readOnly, columnBD);
     const algorithmFpType * const dx = columnBD.getBlockPtr();
-
+    auto start_ = std::chrono::high_resolution_clock::now();
+    float tree_node_size = end - start;
     size_t left  = start;
     size_t right = end - 1;
     for (;;)
@@ -1632,6 +1738,10 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         ++left;
         --right;
     }
+    // auto stop_ = std::chrono::high_resolution_clock::now();
+    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop_ - start_);
+    // std::cout << "tree_index_dur" << "\n";
+    // std::cout << duration.count() << std::endl;// /tree_node_size << " "<< tree_node_size << std::endl;
 
     const size_t lim2 = left;
     const size_t idx  = (lim1 > start + (end - start) / 2) ? lim1 : (lim2 < start + (end - start) / 2) ? lim2 : start + (end - start) / 2;
