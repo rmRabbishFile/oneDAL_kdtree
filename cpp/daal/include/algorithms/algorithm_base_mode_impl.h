@@ -28,6 +28,8 @@
 #include "algorithms/algorithm_base_common.h"
 #include "services/daal_memory.h"
 #include "services/internal/daal_kernel_defines.h"
+#include <chrono>
+#include <iostream>
 
 #include "services/host_app.h"
 
@@ -244,6 +246,10 @@ public:
      */
     services::Status compute()
     {
+        auto start = std::chrono::high_resolution_clock::now();
+        auto time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
+        std::cout << "compute()";
+        std::cout << time_point.time_since_epoch().count();
         this->_status = computeNoThrow();
         return services::throwIfPossible(this->_status);
     }

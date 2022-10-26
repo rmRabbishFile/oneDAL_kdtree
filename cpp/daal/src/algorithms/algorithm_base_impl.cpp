@@ -150,7 +150,10 @@ template <ComputeMode mode>
 services::Status AlgorithmImpl<mode>::computeNoThrow()
 {
     this->setParameter();
-
+    auto start = std::chrono::high_resolution_clock::now();
+    auto time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
+    std::cout << "computeNoThrow()";
+    std::cout << time_point.time_since_epoch().count();
     services::Status s;
     if (this->isChecksEnabled())
     {

@@ -229,6 +229,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     typedef BoundingBox<algorithmFpType> BBox;
 
     const auto maxThreads      = threader_get_threads_number();
+    std::cout << "first part threads" << maxThreads;
     const algorithmFpType base = 2.0;
     const size_t queueSize =
         2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD * maxThreads) / Math::sLog(base)));
@@ -1118,6 +1119,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     };
 
     const auto maxThreads = threader_get_threads_number();
+
 
     KDTreeTablePtr kdTreeTablePtr = r.impl()->getKDTreeTable();
     KDTreeTable & kdTreeTable     = *kdTreeTablePtr;

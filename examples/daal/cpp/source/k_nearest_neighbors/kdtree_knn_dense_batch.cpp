@@ -74,7 +74,7 @@ void trainModel()
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
-    auto start = std::chrono::high_resolution_clock::now();
+    
 
     /* Create an algorithm object to train the KD-tree based kNN model */
     kdtree_knn_classification::training::Batch<> algorithm;
@@ -83,7 +83,7 @@ void trainModel()
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
     algorithm.parameter.nClasses = nClasses;
-
+    auto start = std::chrono::high_resolution_clock::now();
     /* Train the KD-tree based kNN model */
     algorithm.compute();
     auto stop = std::chrono::high_resolution_clock::now();
