@@ -23,7 +23,8 @@
 
 #ifndef __KDTREE_KNN_CLASSIFICATION_TRAIN_KERNEL_H__
 #define __KDTREE_KNN_CLASSIFICATION_TRAIN_KERNEL_H__
-
+#include <chrono>
+#include <iostream>
 #include "data_management/data/numeric_table.h"
 #include "algorithms/algorithm_base_common.h"
 #include "algorithms/k_nearest_neighbors/kdtree_knn_classification_training_types.h"

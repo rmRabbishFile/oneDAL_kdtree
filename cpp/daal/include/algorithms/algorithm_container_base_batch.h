@@ -23,7 +23,8 @@
 
 #ifndef __ALGORITHM_CONTAINER_BASE_BATCH_H__
 #define __ALGORITHM_CONTAINER_BASE_BATCH_H__
-
+#include <chrono>
+#include <iostream>
 #include "services/daal_memory.h"
 #include "services/internal/daal_kernel_defines.h"
 #include "services/internal/gpu_support_checker.h"
