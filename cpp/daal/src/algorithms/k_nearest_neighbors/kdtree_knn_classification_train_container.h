@@ -86,7 +86,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    const bool copy = (par->dataUseInModel == doNotUse);
+    const bool copy = false;//(par->dataUseInModel == doNotUse);
 
     r->impl()->setData<algorithmFpType>(x, copy);
     start = std::chrono::high_resolution_clock::now();
