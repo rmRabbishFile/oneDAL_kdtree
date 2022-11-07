@@ -170,8 +170,8 @@ public:
     {
         auto start = std::chrono::high_resolution_clock::now();
         auto time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
-        std::cout << "algorithm_container_base_batch compute()";
-        std::cout << time_point.time_since_epoch().count();
+        std::cout << "algorithm_container_base_batch compute()" << std::endl;
+        std::cout << time_point.time_since_epoch().count() << std::endl;
         services::Status s;
         services::internal::sycl::ExecutionContextIface & context = services::internal::getDefaultContext();
         services::internal::sycl::InfoDevice & deviceInfo         = context.getInfoDevice();

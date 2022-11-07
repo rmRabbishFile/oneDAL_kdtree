@@ -67,22 +67,32 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     auto start = std::chrono::high_resolution_clock::now();
     auto time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
-    std::cout << "kdtree_knn_classification_train_container compute()";
-    std::cout << time_point.time_since_epoch().count();
+    std::cout << "kdtree_knn_classification_train_container compute()" << std::endl;
+    std::cout << time_point.time_since_epoch().count() << std::endl;
     const classifier::training::Input * const input = static_cast<classifier::training::Input *>(_in);
     Result * const result                           = static_cast<Result *>(_res);
 
     const NumericTablePtr x = input->get(classifier::training::data);
-
+    start = std::chrono::high_resolution_clock::now();
+    time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
+    std::cout << "KNNClassificationTrainBatchKernel input->get()" << std::endl;
+    std::cout << time_point.time_since_epoch().count() << std::endl;
     const kdtree_knn_classification::ModelPtr r = result->get(classifier::training::model);
-
+    start = std::chrono::high_resolution_clock::now();
+    time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
+    std::cout << "KNNClassificationTrainBatchKernel result->get()" << std::endl;
+    std::cout << time_point.time_since_epoch().count() << std::endl;
     const kdtree_knn_classification::Parameter * const par = static_cast<kdtree_knn_classification::Parameter *>(_par);
 
     daal::services::Environment::env & env = *_env;
 
     const bool copy = (par->dataUseInModel == doNotUse);
-    r->impl()->setData<algorithmFpType>(x, copy);
 
+    r->impl()->setData<algorithmFpType>(x, copy);
+    start = std::chrono::high_resolution_clock::now();
+    time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
+    std::cout << "KNNClassificationTrainBatchKernel impl()->setData()" << sizeof(algorithmFpType) << std::endl;
+    std::cout << time_point.time_since_epoch().count() << std::endl;
     NumericTable * labelsPtr = nullptr;
     if (par->resultsToEvaluate != 0)
     {
@@ -91,9 +101,9 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
         labelsPtr = r->impl()->getLabels().get();
     }
     start = std::chrono::high_resolution_clock::now();
-    auto time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
-    std::cout << "KNNClassificationTrainBatchKernel compute()";
-    std::cout << time_point.time_since_epoch().count();
+    time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
+    std::cout << "KNNClassificationTrainBatchKernel compute()" << std::endl;
+    std::cout << time_point.time_since_epoch().count() << std::endl;
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType, method), compute,
                        r->impl()->getData().get(), labelsPtr, r.get(), *par->engine);
