@@ -248,8 +248,8 @@ public:
     {
         auto start = std::chrono::high_resolution_clock::now();
         auto time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
-        std::cout << "compute()" << std::endl;
-        std::cout << time_point.time_since_epoch().count() << std::endl;
+        // std::cout << "compute()" << std::endl;
+        // std::cout << time_point.time_since_epoch().count() << std::endl;
         this->_status = computeNoThrow();
         return services::throwIfPossible(this->_status);
     }

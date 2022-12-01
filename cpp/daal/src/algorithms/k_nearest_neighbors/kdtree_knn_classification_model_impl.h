@@ -155,8 +155,8 @@ public:
             value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD);
             auto start = std::chrono::high_resolution_clock::now();
             auto time_point = std::chrono::time_point_cast<std::chrono::microseconds>(start);
-            std::cout << "kdtree_knn_classification_model_impl cp_mem()" << destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType) << srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType) <<std::endl;
-            std::cout << time_point.time_since_epoch().count() << std::endl;
+            // std::cout << "kdtree_knn_classification_model_impl cp_mem()" << destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType) << srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType) <<std::endl;
+            // std::cout << time_point.time_since_epoch().count() << std::endl;
             result = services::internal::daal_memcpy_s(
                 destBD.getBlockPtr(), 
                 destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType), 
