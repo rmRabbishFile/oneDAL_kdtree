@@ -193,8 +193,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     rearrangePoints(*x, indexes);
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    // std::cout << "reaaragePoints" << "\n";
-    // std::cout << duration.count() << "\n";
+    std::cout << "reaaragePoints" << "\n";
+    std::cout << duration.count() << "\n";
     if (y)
     {
         DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
@@ -307,7 +307,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         start_loop = std::chrono::high_resolution_clock::now();
         // std::cout << "start build level: " << depth << std::endl;
         // std::cout << q.size() <<"queue size: " << posQ << std::endl;
-        std::cout << "maxNodeCountForCurrentDepth: " << maxNodeCountForCurrentDepth << std::endl;
+        // std::cout << "maxNodeCountForCurrentDepth: " << maxNodeCountForCurrentDepth << std::endl;
         nodeIdx     = r.impl()->getLastNodeIndex();
         daal::threader_for(maxNodeCountForCurrentDepth, maxNodeCountForCurrentDepth, [=, &bboxQ, &bnQ, &subSampleCount, &BuildNodeTLS, &status, &engine, &r, &x](int iBlock)       
         {
@@ -328,20 +328,20 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             KDTreeNode & curNode = *(static_cast<KDTreeNode *>(r.impl()->getKDTreeTable()->getArray()) + bn.nodePos);
             bn.queueOrStackPos = bn.nodePos;
             bboxCur              = &bboxQ[bn.queueOrStackPos * xColumnCount];
-            std::cout <<bn.end - bn.start<<  " start build node: " << bn_out->q.size() * 1000 + iBlock << std::endl;
+            // std::cout <<bn.end - bn.start<<  " start build node: " << bn_out->q.size() * 1000 + iBlock << std::endl;
             if (bn.end - bn.start > __KDTREE_LEAF_BUCKET_SIZE)
             {
-                // // std::cout << "selectDimensionSophisticated" << iBlock << std::endl;
+                // std::cout << "selectDimensionSophisticated" << iBlock << std::endl;
                 const size_t d = selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
                                                               __KDTREE_DIMENSION_SELECTION_SIZE, x, indexes, &engine);
-                std::cout << d << " computeApproximatedMedianInParallel " << iBlock << std::endl;
+                // std::cout << d << " computeApproximatedMedianInParallel " << iBlock << std::endl;
                 const algorithmFpType approximatedMedian = computeApproximatedMedianInParallel(bn.start, bn.end, d, bboxCur[d].upper, x, indexes,
                                                                                                engine, subSamples, subSampleCount, status);
-                std::cout << iBlock << " ApproximatedMedian -> " << approximatedMedian << std::endl;                                                                               
+                // std::cout << iBlock << " ApproximatedMedian -> " << approximatedMedian << std::endl;                                                                               
                 // services::Status stat;
                 
                 const size_t idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, status);
-                std::cout << iBlock << " adjustIndexesInParallel -> " << idx << std::endl;
+                // std::cout << iBlock << " adjustIndexesInParallel -> " << idx << std::endl;
                 // DAAL_CHECK_STATUS_VAR(stat)
                 // if (idx == bn.start || idx == bn.end)
                 // {
@@ -363,7 +363,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 bboxLeft                                = &bboxQ[bnLeft.queueOrStackPos * xColumnCount];
                 copyBBox(bboxLeft, bboxCur, xColumnCount);
                 bboxLeft[d].upper = approximatedMedian;
-                std::cout << iBlock << " save left -> " << bn_out->q.size() << std::endl;
+                // std::cout << iBlock << " save left -> " << bn_out->q.size() << std::endl;
                 bn_out->q.push(bnLeft);
                 bn_out->iblock_q.push(2 * iBlock);
 
@@ -374,7 +374,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 bboxRight                                 = &bboxQ[bnRight.queueOrStackPos * xColumnCount];
                 copyBBox(bboxRight, bboxCur, xColumnCount);
                 bboxRight[d].lower = approximatedMedian;
-                std::cout << iBlock << " save right -> " << bn_out->q.size() << std::endl;
+                // std::cout << iBlock << " save right -> " << bn_out->q.size() << std::endl;
                 bn_out->q.push(bnRight);
                 bn_out->iblock_q.push(2 * iBlock + 1);
             }
@@ -423,7 +423,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     for(int k = 0; k < maxNodeCountForCurrentDepth; k++){
         q.push(bnQ[k]);
     }
-    std::cout << "first part done: " << q.size() << std::endl;
+    // std::cout << "first part done: " << q.size() << std::endl;
     // daal_free(subSamples);
     // subSamples = nullptr;
 
@@ -751,16 +751,16 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     // dur_reduce_median = dur_reduce_median + std::chrono::high_resolution_clock::now() - start_reduce_median;
 
     // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_sample_median);
-    // // std::cout << "dur_sample_median_" << rowsPerBlock << "\n";
-    // // std::cout << duration.count() << "\n";
+    // std::cout << "dur_sample_median_" << rowsPerBlock << "\n";
+    // std::cout << duration.count() << "\n";
 
     // duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_for_median);
-    // // std::cout << "dur_for_median_" << rowsPerBlock << "\n";
-    // // std::cout << duration.count() << "\n";
+    // std::cout << "dur_for_median_" << rowsPerBlock << "\n";
+    // std::cout << duration.count() << "\n";
 
     // duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_reduce_median);
-    // // std::cout << "dur_reduce_median" << "\n";
-    // // std::cout << duration.count() << "\n";
+    // std::cout << "dur_reduce_median" << "\n";
+    // std::cout << duration.count() << "\n";
     return approximatedMedian;
 }
 
@@ -984,16 +984,16 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     
 
     // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_sample_median);
-    // // std::cout << "dur_sample_index" << "\n";
-    // // std::cout << duration.count() << "\n";
+    // std::cout << "dur_sample_index" << "\n";
+    // std::cout << duration.count() << "\n";
 
     // duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_for_median);
-    // // std::cout << "dur_for_index" << "\n";
-    // // std::cout << duration.count() << "\n";
+    // std::cout << "dur_for_index" << "\n";
+    // std::cout << duration.count() << "\n";
 
     // duration = std::chrono::duration_cast<std::chrono::microseconds>(dur_reduce_median);
-    // // std::cout << "dur_reduce_index" << "\n";
-    // // std::cout << duration.count() << "\n";
+    // std::cout << "dur_reduce_index" << "\n";
+    // std::cout << duration.count() << "\n";
     daal_free(leftSegmentStartPerBlock);
     daal_free(rightSegmentStartPerBlock);
     leftSegmentStartPerBlock  = nullptr;
@@ -1442,32 +1442,32 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                     
                     // auto stop_tree = std::chrono::high_resolution_clock::now();
                     // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop_tree - start_tree);
-                    // // std::cout << "one_tree" << "\n";
-                    // // std::cout << duration.count() << "\n";
+                    // std::cout << "one_tree" << "\n";
+                    // std::cout << duration.count() << "\n";
                 }         // for (auto i = first; i < last; ++i)
                 if (result) safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
             } // if (local)
             
             // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_main);
-            // // std::cout << "thread_median" << "\n";
-            // // std::cout << duration.count() << std::endl;
+            // std::cout << "thread_median" << "\n";
+            // std::cout << duration.count() << std::endl;
 
             // duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_indexes);
-            // // std::cout << "thread_duration_indexes" << "\n";
-            // // std::cout << duration.count() << std::endl;
+            // std::cout << "thread_duration_indexes" << "\n";
+            // std::cout << duration.count() << std::endl;
 
             // duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_select);
-            // // std::cout << "thread_duration_select" << "\n";
-            // // std::cout << duration.count() << std::endl;
+            // std::cout << "thread_duration_select" << "\n";
+            // std::cout << duration.count() << std::endl;
 
             // duration = std::chrono::duration_cast<std::chrono::microseconds>(duration_end);
-            // // std::cout << "thread_duration_end" << "\n";
-            // // std::cout << duration.count() << std::endl;
+            // std::cout << "thread_duration_end" << "\n";
+            // std::cout << duration.count() << std::endl;
 
             // auto stop = std::chrono::high_resolution_clock::now();
             // duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start_);
-            // // std::cout << "finish_loop" << "\n";
-            // // std::cout << duration.count() << std::endl;
+            // std::cout << "finish_loop" << "\n";
+            // std::cout << duration.count() << std::endl;
         });
 
     auto stop = std::chrono::high_resolution_clock::now();
@@ -1798,8 +1798,8 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     }
     // auto stop_ = std::chrono::high_resolution_clock::now();
     // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop_ - start_);
-    // // std::cout << "tree_index_dur" << "\n";
-    // // std::cout << duration.count() << std::endl;// /tree_node_size << " "<< tree_node_size << std::endl;
+    // std::cout << "tree_index_dur" << "\n";
+    // std::cout << duration.count() << std::endl;// /tree_node_size << " "<< tree_node_size << std::endl;
 
     const size_t lim2 = left;
     const size_t idx  = (lim1 > start + (end - start) / 2) ? lim1 : (lim2 < start + (end - start) / 2) ? lim2 : start + (end - start) / 2;
