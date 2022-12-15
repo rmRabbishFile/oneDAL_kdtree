@@ -309,6 +309,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         posQ = 0;
         // for (size_t i = 0; i < maxNodeCountForCurrentDepth; ++i)
         start_loop = std::chrono::high_resolution_clock::now();
+        __itt_frame_begin_v3(pD_reduce, NULL);
         // std::cout << "start build level: " << depth << std::endl;
         // std::cout << q.size() <<"queue size: " << posQ << std::endl;
         // std::cout << "maxNodeCountForCurrentDepth: " << maxNodeCountForCurrentDepth << std::endl;
@@ -398,7 +399,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             daal_free(subSamples);
             subSamples = nullptr;
         });
-        __itt_frame_begin_v3(pD_reduce, NULL);
+        
         BuildNodeTLS.reduce([=, &q, &bnQ, &r](LocalNode * ln){
             size_t nodeIdx     = r.impl()->getLastNodeIndex();
             if (ln){
