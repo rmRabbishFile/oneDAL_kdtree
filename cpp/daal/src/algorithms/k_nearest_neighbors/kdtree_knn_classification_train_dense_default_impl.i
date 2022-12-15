@@ -48,7 +48,7 @@
 #if defined(__INTEL_COMPILER_BUILD_DATE)
     #include <immintrin.h>
 #endif
-
+#include "ittnotify.h"
 namespace daal
 {
 namespace algorithms
@@ -144,6 +144,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                                                                                 kdtree_knn_classification::Model * r,
                                                                                                 engines::BatchBase & engine)
 {
+    __itt_resume();
     auto start_all = std::chrono::high_resolution_clock::now();
     size_t nThreadsInit = services::Environment::getInstance()->getNumberOfThreads();
     Status status;
@@ -224,6 +225,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 {
     auto start_firstTree = std::chrono::high_resolution_clock::now();
     Status status;
+    __itt_domain* pD = __itt_domain_create( "computeApproximatedMedianInParallel" );
+    __itt_domain* pD_a = __itt_domain_create( "adjustIndexesInParallel" );   
+    __itt_domain* pD_reduce = __itt_domain_create( "reduceFirstTreeLevel" ); 
 
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
@@ -309,7 +313,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         // std::cout << q.size() <<"queue size: " << posQ << std::endl;
         // std::cout << "maxNodeCountForCurrentDepth: " << maxNodeCountForCurrentDepth << std::endl;
         nodeIdx     = r.impl()->getLastNodeIndex();
-        daal::threader_for(maxNodeCountForCurrentDepth, maxNodeCountForCurrentDepth, [=, &bboxQ, &bnQ, &subSampleCount, &BuildNodeTLS, &status, &engine, &r, &x](int iBlock)       
+        daal::threader_for(maxNodeCountForCurrentDepth, maxNodeCountForCurrentDepth, [=, &bboxQ, &bnQ, &subSampleCount, &BuildNodeTLS, &status, &engine, &r, &x, &pD, &pD_a](int iBlock)       
         {
             BuildNode bn, bnLeft, bnRight;
             LocalNode * const bn_out = BuildNodeTLS.local();
@@ -335,12 +339,15 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 const size_t d = selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
                                                               __KDTREE_DIMENSION_SELECTION_SIZE, x, indexes, &engine);
                 // std::cout << d << " computeApproximatedMedianInParallel " << iBlock << std::endl;
+                __itt_frame_begin_v3(pD, NULL);
                 const algorithmFpType approximatedMedian = computeApproximatedMedianInParallel(bn.start, bn.end, d, bboxCur[d].upper, x, indexes,
                                                                                                engine, subSamples, subSampleCount, status);
+                __itt_frame_end_v3(pD, NULL);
                 // std::cout << iBlock << " ApproximatedMedian -> " << approximatedMedian << std::endl;                                                                               
                 // services::Status stat;
-                
+                __itt_frame_begin_v3(pD_a, NULL);
                 const size_t idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, status);
+                __itt_frame_end_v3(pD_a, NULL);
                 // std::cout << iBlock << " adjustIndexesInParallel -> " << idx << std::endl;
                 // DAAL_CHECK_STATUS_VAR(stat)
                 // if (idx == bn.start || idx == bn.end)
@@ -391,7 +398,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             daal_free(subSamples);
             subSamples = nullptr;
         });
-
+        __itt_frame_begin_v3(pD_reduce, NULL);
         BuildNodeTLS.reduce([=, &q, &bnQ, &r](LocalNode * ln){
             size_t nodeIdx     = r.impl()->getLastNodeIndex();
             if (ln){
@@ -407,7 +414,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             // ln->next_nodes = nullptr;
             // service_scalable_free<LocalNode, cpu>(ln);
         });
-        
+        __itt_frame_end_v3(pD_reduce, NULL);
         // std::cout << " became " << q.size();
 
         // DAAL_CHECK_BREAK((q.empty()));

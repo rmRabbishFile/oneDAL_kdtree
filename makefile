@@ -370,6 +370,7 @@ daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
 daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 daaldep.rt.dpc  := $(daaldep.$(PLAT).rt.dpc)
+daaldep.profile.itt := /home/xz/Intel_VTune_Profiler_2022.3.0_internal/sdk/lib64/libittnotify.a /home/xz/Intel_VTune_Profiler_2022.3.0_internal/sdk/lib64/libjitprofiling.a
 
 # List oneAPI header files to populate release/include.
 release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*" ! -path "*_test.*" ! -path "*/test/*"
@@ -502,16 +503,16 @@ $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.txt): $(CORE.objs_a) | $(CORE.tmpdir_a)/. 
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  LOPT:=
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.txt) | $(CORE.tmpdir_a)/. ; $(LINK.STATIC)
 $(WORKDIR.lib)/$(core_a):                   LOPT:=
-$(WORKDIR.lib)/$(core_a):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(core_a):                   $(daaldep.profile.itt) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
 
 $(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC)
-$(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq)
+$(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq) $(daaldep.profile.itt) $(daaldep.profile.itt)
 $(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+$(WORKDIR.lib)/$(core_y):                   $(daaldep.profile.itt) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
                                             $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
@@ -790,10 +791,10 @@ $(eval $(call .ONEAPI.declare_static_lib,$(WORKDIR.lib)/$(oneapi_a.dpc),$(ONEAPI
 $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
     $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): \
-    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(daaldep.profile.itt)\
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
-$(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
+$(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq) $(daaldep.profile.itt)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 ifdef OS_is_win
@@ -803,10 +804,10 @@ endif
 $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
     $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
-    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(daaldep.profile.itt)\
     $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc) $(daaldep.profile.itt)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
@@ -838,20 +839,20 @@ THR_SEQ.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_seq.$o))
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
-$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.mkl.thr) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.mkl.thr) $(daaldep.profile.itt); $(LINK.STATIC)
 $(WORKDIR.lib)/$(thr_seq_a): LOPT:=
-$(WORKDIR.lib)/$(thr_seq_a): $(THR_SEQ.objs_a) $(daaldep.mkl.seq) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(thr_seq_a): $(THR_SEQ.objs_a) $(daaldep.mkl.seq) $(daaldep.profile.itt); $(LINK.STATIC)
 
 $(THR.tmpdir_y)/%_link.def: $(THR.srcdir)/$(daaldep.$(PLAT).threxport) | $(THR.tmpdir_y)/.
 	$(daaldep.$(_OS).threxport.create) > $@
 
-$(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr)
+$(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr) $(daaldep.profile.itt)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
 $(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.mkl.thr) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
-$(WORKDIR.lib)/$(thr_seq_y): LOPT += $(-fPIC) $(daaldep.rt.seq)
+$(WORKDIR.lib)/$(thr_seq_y): LOPT += $(-fPIC) $(daaldep.rt.seq) $(daaldep.profile.itt)
 $(WORKDIR.lib)/$(thr_seq_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(thr_seq_y): $(THR_SEQ.objs_y) $(daaldep.mkl.seq) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_seq.res,) $(THR.tmpdir_y)/$(thr_seq_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(thr_seq_y): $(daaldep.profile.itt) $(THR_SEQ.objs_y) $(daaldep.mkl.seq) $(daaldep.mkl) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_seq.res,) $(THR.tmpdir_y)/$(thr_seq_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 THR.objs_a := $(THR_TBB.objs_a) $(THR_SEQ.objs_a)
 THR.objs_y := $(THR_TBB.objs_y) $(THR_SEQ.objs_y)
