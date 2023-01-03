@@ -222,6 +222,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     Queue<BuildNode, cpu> & q, BoundingBox<algorithmFpType> *& bboxQ, const NumericTable & x, kdtree_knn_classification::Model & r, size_t * indexes,
     engines::BatchBase & engine)
 {
+    typedef IndexValuePair<algorithmFpType, cpu> IdxValue;
     auto start_firstTree = std::chrono::high_resolution_clock::now();
     Status status;
 
@@ -335,12 +336,28 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 const size_t d = selectDimensionSophisticated(bn.start, bn.end, sophisticatedSampleIndexes, sophisticatedSampleValues,
                                                               __KDTREE_DIMENSION_SELECTION_SIZE, x, indexes, &engine);
                 // std::cout << d << " computeApproximatedMedianInParallel " << iBlock << std::endl;
-                const algorithmFpType approximatedMedian = computeApproximatedMedianInParallel(bn.start, bn.end, d, bboxCur[d].upper, x, indexes,
+                algorithmFpType approximatedMedian;
+                size_t idx;
+
+                if (bn.end - bn.start < 128 * 1024){
+                    IdxValue * inSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD);
+                    IdxValue * outSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD);
+                    std::cout << "running in searial" << bn.end - bn.start;
+                    approximatedMedian = computeApproximatedMedianInSerial(bn.start, bn.end, d, bboxCur[d].upper, inSortValues, outSortValues, 
+                                                                    __KDTREE_INDEX_VALUE_PAIRS_PER_THREAD, x, indexes, engine.clone().get(), status);
+                    idx = adjustIndexesInSerial(bn.start, bn.end, d, approximatedMedian, x, indexes);
+                    service_scalable_free<IdxValue, cpu>(inSortValues);
+                    service_scalable_free<IdxValue, cpu>(outSortValues);
+                }
+                    
+                else{
+                    approximatedMedian = computeApproximatedMedianInParallel(bn.start, bn.end, d, bboxCur[d].upper, x, indexes,
                                                                                                engine, subSamples, subSampleCount, status);
+                    idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, status);
+                }
+
                 // std::cout << iBlock << " ApproximatedMedian -> " << approximatedMedian << std::endl;                                                                               
                 // services::Status stat;
-                
-                const size_t idx = adjustIndexesInParallel(bn.start, bn.end, d, approximatedMedian, x, indexes, status);
                 // std::cout << iBlock << " adjustIndexesInParallel -> " << idx << std::endl;
                 // DAAL_CHECK_STATUS_VAR(stat)
                 // if (idx == bn.start || idx == bn.end)
