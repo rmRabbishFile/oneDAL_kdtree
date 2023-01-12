@@ -339,7 +339,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 algorithmFpType approximatedMedian;
                 size_t idx;
 
-                if (bn.end - bn.start < 128 * 1024){
+                if (bn.end - bn.start < 0){
                     IdxValue * inSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD);
                     IdxValue * outSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD);
                     std::cout << "running in searial" << bn.end - bn.start;
@@ -419,9 +419,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
             }
             r.impl()->setLastNodeIndex(nodeIdx);
-            
-            // service_scalable_free<BuildNode, cpu>(ln->next_nodes);
-            // ln->next_nodes = nullptr;
+
             // service_scalable_free<LocalNode, cpu>(ln);
         });
         
@@ -441,8 +439,12 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         q.push(bnQ[k]);
     }
     // std::cout << "first part done: " << q.size() << std::endl;
-    // daal_free(subSamples);
-    // subSamples = nullptr;
+
+    BuildNodeTLS.reduce([=, &q, &bnQ, &r](LocalNode * ln){
+        service_scalable_free<LocalNode, cpu>(ln);
+    });
+    daal_free(bnQ);
+    bnQ = nullptr;
 
     return status;
 }
@@ -1155,7 +1157,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     BuildNode * bnQ = static_cast<BuildNode *>(service_malloc<BuildNode, cpu>(q.size() * sizeof(BuildNode)));
     DAAL_CHECK_MALLOC(bnQ)
     size_t posQ = 0;
-    // std::cout << "from first parts q size: " << q.size() << std::endl;
+    std::cout << "from first parts q size: " << q.size() << std::endl;
     while (q.size() > 0)
     {
         bnQ[posQ++] = q.pop();
