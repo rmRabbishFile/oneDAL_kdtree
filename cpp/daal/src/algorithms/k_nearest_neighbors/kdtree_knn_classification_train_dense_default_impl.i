@@ -147,7 +147,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     auto start_all = std::chrono::high_resolution_clock::now();
     size_t nThreadsInit = services::Environment::getInstance()->getNumberOfThreads();
     Status status;
-    // std::cout << "message from compute() cpp: \n using" << "\n" << nThreadsInit << "\n";
+    std::cout << "message from compute() cpp: \n using" << "\n" << nThreadsInit << "\n";
     typedef daal::internal::Math<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
 
@@ -301,6 +301,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     bnQ[0] = bn;
     size_t posQ = 0;
     size_t nodeIdx = 0;
+    // services::Environment::getInstance()->setNumberOfThreads(1);
+    // std::cout << "start tread_for()" << threader_get_threads_number() << "\n";
+    size_t total_node_count = 0;
     while (maxNodeCountForCurrentDepth < firstPartLeafNodeCount)
     {
         posQ = 0;
@@ -325,7 +328,13 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
  
 
             bn                   = bnQ[iBlock];
-
+            if(bn.start == -1){
+                std::cout << iBlock  << "th node was done" << std::endl;
+                bn_out->q.push(bn);
+                bn_out->iblock_q.push(2 * iBlock);
+                bn_out->q.push(bn);
+                bn_out->iblock_q.push(2 * iBlock + 1);
+            }
             KDTreeNode & curNode = *(static_cast<KDTreeNode *>(r.impl()->getKDTreeTable()->getArray()) + bn.nodePos);
             bn.queueOrStackPos = bn.nodePos;
             bboxCur              = &bboxQ[bn.queueOrStackPos * xColumnCount];
@@ -402,6 +411,12 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 curNode.leftIndex  = bn.start;
                 curNode.rightIndex = bn.end;
 
+                bn.start      = -1;
+                bn.end        = -1;
+                bn_out->q.push(bn);
+                bn_out->iblock_q.push(2 * iBlock);
+                bn_out->q.push(bn);
+                bn_out->iblock_q.push(2 * iBlock + 1);
                 // DAAL_CHECK_BREAK((q.empty()));
             }
 
@@ -436,7 +451,13 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         maxNodeCountForCurrentDepth = static_cast<size_t>(1) << depth;
     }
     for(int k = 0; k < maxNodeCountForCurrentDepth; k++){
-        q.push(bnQ[k]);
+        if(bnQ[k].start == -1){
+            std::cout << k  << "th node is done" << std::endl;
+        }           
+        else{
+            q.push(bnQ[k]);
+        }
+            
     }
     // std::cout << "first part done: " << q.size() << std::endl;
 
