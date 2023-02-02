@@ -348,7 +348,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 algorithmFpType approximatedMedian;
                 size_t idx;
 
-                if (bn.end - bn.start < 0){
+                if (bn.end - bn.start < 128 * 1024){
                     IdxValue * inSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD);
                     IdxValue * outSortValues = service_scalable_calloc<IdxValue, cpu>(__KDTREE_INDEX_VALUE_PAIRS_PER_THREAD);
                     std::cout << "running in searial" << bn.end - bn.start;
